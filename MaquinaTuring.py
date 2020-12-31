@@ -1,73 +1,81 @@
+class maquinaTuring:
+	global cinta
+	global transiciones
+	global estado_act 
+	global posicion
 
-import numpy as np
-import csv
-def ejemplo(a,b,c):
-    return [c,b,a]
+	def computa(self):
+		while self.estado_act in self.transiciones.keys():
+			instrucciones = self.transiciones[self.estado_act]
+			instrucciones = instrucciones[self.cinta[self.posicion]]
+			self.ejecuta(instrucciones)
+			if self.posicion >= len(self.cinta) or self.posicion < 0:
+				print ("MLE")
+				break
+			
 
-def buscarTabla(tabla,caracter,estadoActual):
-    a=0
-    b=0
-    for i in range(len(tabla[0])):
-        if(caracter==tabla[0][i]):
-            a=i
-    for i in range(len(tabla)):
-        if(estadoActual==tabla[i][0]):
-            b=i
-    return tabla[b][a].split(",")
+	def ejecuta(self, ins):
+		self.estado_act = ins[0]
+		self.cinta[self.posicion] = ins[1]
+		self.movimiento(ins[2])
 
-def EjecucionAutomata(cadena,tabla,estadoInicial,estadosFinales):
-    estadoActual=estadoInicial
-    cabezal=0
-    while((not estadoActual in estadosFinales) and (not estadoActual=="e")):
-        [estadoActual,escribir,movimiento]=buscarTabla(tabla,cadena[cabezal],estadoActual)
-        ##Acciones de mi cinta
-        cadena=cadena[:cabezal]+escribir+cadena[cabezal+1:]
-        if movimiento=="R":
-            cabezal+=1
-        else: 
-            if (movimiento=="L"):
-                cabezal-=1
-        if(cabezal<0):
-            cadena="#"+cadena
-            cabezal+=1
-        if(cabezal>len(cadena)-1):
-            cadena+="#"
-        
-    if (estadoActual in estadosFinales):
-        print("Cadena Aceptada") 
-        print("Resultado "+cadena.replace("#",""))
-        
-    else:
-        print("Cadena Inválida")
-        
-def cargarMaquina(direccion):
-    estadoInicial=None
-    estadosFinales=[]
-    tabla=[]
-    with open(direccion, newline='') as File:  
-        reader = csv.reader(File)
-        i = 0
-        for row in reader:
-            if (i==0):
-                estadoInicial=row[0]
-            elif (i==1):
-                for elemento in row:
-                    if(not elemento == ''):
-                        estadosFinales.append(elemento)
-            else:
-                filaTabla=[]
-                for elemento in row:
-                    if(not elemento == ''):
-                        elemento=elemento.replace(";", ",")
-                        filaTabla.append(elemento)
-                tabla.append(filaTabla)
-                        
-            i+=1
-    return estadoInicial,estadosFinales,tabla
-    
-                
-        
 
-tabla=[["e", "0", "1", "#"],
-       ["q1","q1,1,R","q1,0,R","q2,#,L"],
-       ["q2","e,#,#","e,#,L"]]
+	def movimiento(self, ins):
+		if ins == "R" :
+			self.posicion += 1
+		if ins == "L":
+			self.posicion -= 1
+
+
+def configCinta(n, cinta, c):
+	for i in range (0, n):
+		cinta[i] = c
+
+
+def lee():
+	contador = 0
+	diccionario = {}
+	cinta = []
+	reglas = int(input("Hola dame el numero de reglas: "))
+	reglas = int(reglas/2)
+	for i in range (0, reglas):
+		lista = []
+		print ("Para el estado ", i)
+		for j in range (0,2):
+			print ("leyendo... ", j)
+			lista2 = []
+			lista2.append(int(input("Dame el nuevo estado: ")))
+			lista2.append(str(input("Dame lo que escribira en la cinta: ")))
+			lista2.append(str(input("Dame el movimiento: ")))
+			lista.append(lista2)
+		diccionario[i] = lista
+	print (diccionario)
+	pruebas = int(input("Dame el numero de casos prueba: "))
+	listPruebas = []
+	for x in range (0, pruebas):
+		print("Para la prueba ", x)
+		x = int(input("Dame el numero de unos de entrada: "))
+		y = int(input("Dame el numero de unos de salida: "))
+		listPruebas.append((x,y))
+		print(listPruebas)
+	for x in range (1000):
+		cinta.append(0)
+	for p in listPruebas:
+		contador += 1
+		configCinta(int(p[0]), cinta, 1)
+		maquina = maquinaTuring()
+		maquina.cinta = cinta
+		maquina.transiciones = diccionario
+		maquina.estado_act = 0
+		maquina.posicion = 0
+		maquina.computa()
+		if contador > 10000:
+			print("TLE")
+		print("en la prueba:")
+		if maquina.cinta.count(1) == p[1]:
+			print("AC")
+		else:
+			print("WA")
+		configCinta(int(1000), cinta, 0)
+
+lee()
