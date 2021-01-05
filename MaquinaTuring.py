@@ -61,11 +61,9 @@ def cargarMaquina(direccion):
                 tabla.append(filaTabla)
                         
             i+=1
-    return estadoInicial,estadosFinales,tabla
-    
-                
-        
+    return tabla,estadoInicial,estadosFinales
 
 tabla=[["e", "0", "1", "#"],
        ["q1","q1,1,R","q1,0,R","q2,#,L"],
        ["q2","e,#,#","e,#,L"]]
+                
